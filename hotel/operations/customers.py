@@ -2,8 +2,6 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from hotel.db.engine import DBSession
-from hotel.db.models import DBCustomer, to_dict
 from hotel.operations.interface import DataInterface, DataObject
 
 
@@ -32,10 +30,7 @@ def create_customer(data: CustomerCreateData, customer_interface: DataInterface)
 
 
 # to be continued
-def update_customer(customer_id: int, data: CustomerUpdateData):
-    session = DBSession()
-    customer = session.query(DBCustomer).get(customer_id)
-    for key, value in data.dict(exclude_none=True).items():
-        setattr(customer, key, value)
-    session.commit()
-    return to_dict(customer)
+def update_customer(
+    customer_id: int, data: CustomerUpdateData, customer_interface: DataInterface
+):
+    return customer_interface.update(customer_id, data.dict())
