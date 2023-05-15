@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from hotel.db.engine import DBSession
 from hotel.db.models import DBCustomer, to_dict
+from hotel.operations.interface import DataInterface, DataObject
 
 
 class CustomerCreateData(BaseModel):
@@ -18,26 +19,19 @@ class CustomerUpdateData(BaseModel):
     email_address: Optional[str]
 
 
-def read_all_customers():
-    session = DBSession()
-    customers = session.query(DBCustomer).all()
-    return [to_dict(customer) for customer in customers]
+def read_all_customers(customer_interface: DataInterface) -> list[DataObject]:
+    return customer_interface.read_all()
 
 
-def read_customer(customer_id: int):
-    session = DBSession()
-    customer = session.query(DBCustomer).get(customer_id)
-    return to_dict(customer)
+def read_customer(customer_id: int, customer_interface: DataInterface) -> DataObject:
+    return customer_interface.read_by_id(customer_id)
 
 
-def create_customer(data: CustomerCreateData):
-    session = DBSession()
-    customer = DBCustomer(**data.dict())
-    session.add(customer)
-    session.commit()
-    return to_dict(customer)
+def create_customer(data: CustomerCreateData, customer_interface: DataInterface):
+    return customer_interface.create(data.dict())
 
 
+# to be continued
 def update_customer(customer_id: int, data: CustomerUpdateData):
     session = DBSession()
     customer = session.query(DBCustomer).get(customer_id)
